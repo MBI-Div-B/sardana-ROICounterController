@@ -60,10 +60,22 @@ class ROIcounterController(PseudoCounterController):
         image = np.array(counter_values[0])
         ax = axis - 1
         try:
-            roi = np.s_[self._rois[0+4*ax]:self._rois[1+4*ax],
-                        self._rois[2+4*ax]:self._rois[3+4*ax]]
-            return image[roi].sum()
+            if ax < 4:                
+                roi = np.s_[self._rois[0+4*ax]:self._rois[1+4*ax],
+                            self._rois[2+4*ax]:self._rois[3+4*ax]]
+                return image[roi].sum()/(image[roi].shape[0]*image[roi].shape[1])
+            else:
+                ax = ax-3
+                roi_signal = np.s_[self._rois[0+4*ax]:self._rois[1+4*ax],
+                                self._rois[2+4*ax]:self._rois[3+4*ax]]
+                ax = 3
+                roi_background = np.s_[self._rois[0+4*ax]:self._rois[1+4*ax],
+                                self._rois[2+4*ax]:self._rois[3+4*ax]]
+                
+                return (image[roi_signal].sum()/(image[roi_signal].shape[0]*image[roi_signal].shape[1]) 
+                        - image[roi_background].sum()/(image[roi_background].shape[0]*image[roi_background].shape[1]))
         except IndexError:
             return -1
         except AttributeError:
             return -2
+
